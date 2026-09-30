@@ -5,6 +5,7 @@ import { randomUUID, createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { v2 as cloudinary } from 'cloudinary';
+import { demoAssets } from './src/data/demo.js';
 
 if (existsSync(new URL('./.env', import.meta.url))) {
   const env = await readFile(new URL('./.env', import.meta.url), 'utf8');
@@ -266,11 +267,13 @@ async function handler(req, res) {
 
     if (req.method === 'POST' && pathname === '/api/analysis') {
       const input = await body(req);
-      const asset = db.assets.find(a => a.id === input.assetId);
+      const fixture = demoAssets.find(a => a.id === input.assetId);
+      const asset = db.assets.find(a => a.id === input.assetId) || (fixture ? { id: fixture.id, secureUrl: fixture.image } : null);
       if (!asset) return json(res, 404, { error: 'asset not found' });
+      if (!aiConfigured) return json(res, 503, { error: 'OpenAI key is not configured. No analysis was generated.' });
       let analysis;
-      try { analysis = aiConfigured ? await openAIAnalysis(asset) : demoAnalysis(asset); }
-      catch (error) { analysis = { ...demoAnalysis(asset), status: 'DEMO_FALLBACK', fallbackReason: error.message }; }
+      try { analysis = await openAIAnalysis(asset); }
+      catch (error) { return json(res, 502, { error: error.message }); }
       append(db, { type: 'ANALYSIS', assetId: asset.id, model: analysis.model, elementCount: analysis.observations.length });
       await save(db);
       return json(res, 200, analysis);
