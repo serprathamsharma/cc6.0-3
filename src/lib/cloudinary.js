@@ -1,0 +1,3 @@
+export const capabilityMatrix = { upload: true, deliveryTransformations: true, responsiveCrop: true, overlays: true, assetAnalysis: false, visualSearch: false, generativeRemove: false, videoTranscription: false };
+export function cloudinaryStatus() { return { mode: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME ? 'connected' : 'demo', capabilities: capabilityMatrix }; }
+export function derivativeUrl(publicId, transform='c_fill,w_1200,h_800,q_auto,f_auto') { const cloud=import.meta.env.VITE_CLOUDINARY_CLOUD_NAME; return cloud ? `https://res.cloudinary.com/${cloud}/image/upload/${transform}/${publicId}` : null; }

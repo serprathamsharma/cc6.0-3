@@ -1,0 +1,24 @@
+{
+  "name": "impactlens",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "server": "node server.mjs",
+    "dev:all": "concurrently \"npm run server\" \"npm run dev\"",
+    "build": "vite build",
+    "test": "node --test tests/**/*.test.mjs",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react-swc": "^4.0.0",
+    "cloudinary": "^2.11.0",
+    "concurrently": "^9.2.1",
+    "lucide-react": "^0.540.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "typescript": "^5.8.3",
+    "vite": "^7.1.3"
+  }
+}

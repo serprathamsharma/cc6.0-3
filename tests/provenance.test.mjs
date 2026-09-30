@@ -1,0 +1,5 @@
+import test from 'node:test'; import assert from 'node:assert/strict';
+async function sha256(value){const data=new TextEncoder().encode(value);const hash=await crypto.subtle.digest('SHA-256',data);return [...new Uint8Array(hash)].map(b=>b.toString(16).padStart(2,'0')).join('')}
+async function append(entries,event){const previousHash=entries.at(-1)?.hash||'GENESIS';return [...entries,{...event,previousHash,hash:await sha256(JSON.stringify({...event,previousHash}))}]}
+async function verify(entries){let prev='GENESIS';for(let i=0;i<entries.length;i++){const {hash,...event}=entries[i];if(hash!==await sha256(JSON.stringify({...event,previousHash:prev})))return {valid:false,index:i+1};prev=hash}return {valid:true}}
+test('hash chain verifies and detects tampering',async()=>{let ledger=[];ledger=await append(ledger,{type:'ORIGINAL',assetId:'asset_00123'});ledger=await append(ledger,{type:'ANALYSIS',elements:5});assert.deepEqual(await verify(ledger),{valid:true});ledger[0].assetId='tampered';assert.deepEqual(await verify(ledger),{valid:false,index:1})});
