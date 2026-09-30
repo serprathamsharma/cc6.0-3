@@ -206,6 +206,9 @@ async function handler(req, res) {
           '/api/status',
           '/api/cloudinary/signature',
           '/api/assets',
+          '/api/cloudinary/search',
+          '/api/cloudinary/resource',
+          '/api/cloudinary/analyze',
           '/api/analysis',
           '/api/derivatives',
           '/api/provenance',
@@ -248,6 +251,7 @@ async function handler(req, res) {
       if (!input.publicId || !input.secureUrl) return json(res, 400, { error: 'publicId and secureUrl are required' });
       const asset = {
         id: input.assetId || `asset_${randomUUID().slice(0, 8)}`,
+        cloudinaryAssetId: input.cloudinaryAssetId || input.assetId || null,
         publicId: input.publicId,
         secureUrl: input.secureUrl,
         resourceType: input.resourceType || 'image',
@@ -263,6 +267,38 @@ async function handler(req, res) {
 
     if (req.method === 'GET' && pathname === '/api/assets') {
       return json(res, 200, { assets: db.assets });
+    }
+
+    if (req.method === 'GET' && pathname === '/api/cloudinary/search') {
+      if (!configured) return json(res, 503, { error: 'Cloudinary credentials unavailable', mode: 'demo' });
+      const expression = parsedUrl.searchParams.get('expression') || 'resource_type:image';
+      const maxResults = Math.min(Number(parsedUrl.searchParams.get('max_results') || 30), 100);
+      const request = cloudinary.search.expression(expression).sort_by('created_at', 'desc').max_results(maxResults);
+      const cursor = parsedUrl.searchParams.get('next_cursor');
+      if (cursor) request.next_cursor(cursor);
+      const result = await request.execute();
+      return json(res, 200, { resources: result.resources || [], next_cursor: result.next_cursor || null, expression });
+    }
+
+    if (req.method === 'GET' && pathname === '/api/cloudinary/resource') {
+      if (!configured) return json(res, 503, { error: 'Cloudinary credentials unavailable', mode: 'demo' });
+      const assetId = parsedUrl.searchParams.get('asset_id');
+      const publicId = parsedUrl.searchParams.get('public_id');
+      if (!assetId && !publicId) return json(res, 400, { error: 'asset_id or public_id is required' });
+      const resource = assetId ? await cloudinary.api.resource_by_asset_id(assetId) : await cloudinary.api.resource(publicId);
+      return json(res, 200, resource);
+    }
+
+    if (req.method === 'POST' && pathname === '/api/cloudinary/analyze') {
+      if (!configured) return json(res, 503, { error: 'Cloudinary credentials unavailable', mode: 'demo' });
+      const input = await body(req);
+      if (!input.uri) return json(res, 400, { error: 'uri is required' });
+      try {
+        const result = await cloudinary.analysis.analyze_uri(input.uri, { analysis: input.analysis || 'captioning' });
+        return json(res, 200, { provider: 'cloudinary', result });
+      } catch (error) {
+        return json(res, 502, { error: error.error?.message || error.message, capability: 'Cloudinary Analysis API may require an enabled subscription' });
+      }
     }
 
     if (req.method === 'POST' && pathname === '/api/analysis') {

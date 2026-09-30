@@ -37,7 +37,7 @@ The UI separates OBSERVATION from INTERPRETATION, labels originals and derivativ
 
 ## Cloudinary integration
 
-The server uses the official Cloudinary Node SDK for configuration, signing, and derivative URL generation. The current demo uses Cloudinary-compatible asset IDs and delivery semantics. Upload signing is available when credentials are configured. Search API, structured metadata, AI Vision/add-ons, video analysis, and generative transformations remain capability-gated; no unavailable analysis or generative API is presented as live in demo mode.
+The server uses the official Cloudinary Node SDK for configuration, signing, upload delivery, indexed Search API queries, resource lookup by immutable `asset_id`, transformation URL generation, and the optional Analysis API. The implementation follows the SDK repository's bundled docs (`docs/platform-capabilities.md`, `docs/sign-browser-upload.md`, `docs/upload-image.md`, `docs/search-and-manage-assets.md`, and `docs/transform-and-deliver-image.md`). The current demo uses Cloudinary-compatible asset IDs and delivery semantics. Upload signing is available when credentials are configured. Structured metadata, visual search, video analysis, and generative transformations remain capability-gated; no unavailable analysis or generative API is presented as live in demo mode.
 
 ## Checks
 
