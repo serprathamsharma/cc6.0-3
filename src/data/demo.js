@@ -180,6 +180,7 @@ export const shorelineElements = [
 export const demoAssets = [
   {
     id: 'asset_00123',
+    demo: true,
     name: 'solar-array-survey-014.jpg',
     alternateName: 'shoreline-survey-014.jpg',
     location: 'Kaveri Solar Basin · North array',
@@ -193,12 +194,13 @@ export const demoAssets = [
   },
   {
     id: 'asset_00124',
+    demo: true,
     name: 'urban-structure-ward12.jpg',
     alternateName: 'school-tank-before.jpg',
     location: 'Mysuru · Ward 12',
     date: '02 Jun 2026',
     image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=900&q=80',
-    tag: 'ORIGINAL',
+    tag: 'ILLUSTRATIVE DEMO',
     elements: ['Building Facade', 'Balconies', 'Windows', 'Clear Sky'],
     elementsList: buildingElements,
     source: 'demo/urban-structure-ward12',
@@ -206,12 +208,13 @@ export const demoAssets = [
   },
   {
     id: 'asset_00125',
+    demo: true,
     name: 'plantation-canopy-08.jpg',
     alternateName: 'plantation-day-08.jpg',
     location: 'Kaveri Basin · East bank',
     date: '18 Jun 2026',
     image: 'https://images.unsplash.com/photo-1497250681960-ef046c08a56e?auto=format&fit=crop&w=900&q=80',
-    tag: 'ORIGINAL',
+    tag: 'ILLUSTRATIVE DEMO',
     elements: ['Fern Fronds', 'Leaf Canopy', 'Understory Recesses'],
     elementsList: plantationElements,
     source: 'demo/plantation-canopy-08',
@@ -219,17 +222,18 @@ export const demoAssets = [
   },
   {
     id: 'asset_00126',
+    demo: true,
     name: 'shoreline-survey-015.jpg',
     location: 'Kaveri Lake · North shore',
     date: '20 Jun 2026',
     image: 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?auto=format&fit=crop&w=1600&q=85',
-    tag: 'ORIGINAL',
+    tag: 'ILLUSTRATIVE DEMO',
     elements: ['Water Surface', 'Shoreline Bank', 'Riparian Forest'],
     elementsList: shorelineElements,
     source: 'demo/shoreline-survey-015',
     confidence: 97
   }
-];
+].map(asset => ({ ...asset, status: 'ORIGINAL', storage: 'demo' }));
 
 export const demoWorkspaces = [
   {
@@ -277,9 +281,9 @@ export const demoWorkspaces = [
 export const elements = solarElements;
 
 export function getElementsForAsset(asset) {
-  if (!asset) return solarElements;
+  if (!asset) return [];
   if (asset.elementsList && asset.elementsList.length > 0) return asset.elementsList;
-  const match = demoAssets.find(a => a.id === asset.id || a.name === asset.name);
+  const match = demoAssets.find(a => a.id === asset.id);
   if (match?.elementsList) return match.elementsList;
-  return solarElements;
+  return [];
 }
